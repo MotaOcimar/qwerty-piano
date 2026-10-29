@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QWERTY Piano</title>
+<meta name="description" content="Toque piano no teclado do PC ou celular, com notas caindo, modos de treino, gravação e leitura de MIDI.">
+<meta name="theme-color" content="#2a0d14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <h1>QWERTY <span>Piano</span></h1>
+    <div id="hud">Piano livre</div>
+  </div>
+  <div class="bar">
+    <button class="btn primary" id="mainBtn">Gravar</button>
+    <button class="btn" id="kbBtn" aria-pressed="false" aria-label="Abrir teclado do celular"><span aria-hidden="true">⌨</span><span class="kb-lbl">Teclado</span></button>
+    <input id="kbIn" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Teclado do celular para tocar">
+    <button class="btn" id="pedalBtn" aria-pressed="false">Pedal</button>
+    <span style="flex:1"></span>
+    <button class="btn icon" id="panL" aria-label="Mover teclado para os graves">◀</button>
+    <button class="btn icon" id="panR" aria-label="Mover teclado para os agudos">▶</button>
+    <button class="btn icon" id="setBtn" aria-pressed="false" aria-label="Ajustes">⚙</button>
+  </div>
+  <div class="settings" id="settings">
+    <div class="row">
+      <div class="seg" role="group" aria-label="Modo">
+        <button data-mode="free" aria-pressed="true">Livre</button>
+        <button data-mode="listen" aria-pressed="false">Ouvir</button>
+        <button data-mode="learn" aria-pressed="false">Aprender</button>
+        <button data-mode="play" aria-pressed="false">Desafio</button>
+      </div>
+    </div>
+    <div class="row">
+      <select id="songSel" aria-label="Música"></select>
+      <select id="speedSel" aria-label="Velocidade">
+        <option value="0.5">50%</option>
+        <option value="0.75">75%</option>
+        <option value="1" selected>100%</option>
+      </select>
+      <select id="handSel" aria-label="Notas"><option value="mel" selected>Só melodia</option><option value="full">Completa</option></select>
+      <select id="styleSel" aria-label="Estilo do mapeamento"><option value="cont">Contínuo</option><option value="heart">Heartopia</option></select>
+      <select id="layoutSel" aria-label="Layout do teclado"><option value="abnt2">ABNT2</option><option value="us">US</option></select>
+      <label class="file" for="midiIn">Abrir MIDI<input id="midiIn" type="file" accept=".mid,.midi,audio/midi"></label>
+      <button class="btn" id="copyBtn">Copiar letras</button>
+    </div>
+  </div>
+  <div class="sheet" id="sheet"></div>
+  <div class="stage" id="stage">
+    <canvas id="cv"></canvas>
+    <div class="overlay" id="overlay" hidden>
+      <h2 id="ovTitle"></h2>
+      <p id="ovText"></p>
+      <div class="stats" id="ovStats" hidden></div>
+      <textarea id="ovArea" hidden readonly></textarea>
+      <button class="btn primary" id="ovBtn">Fechar</button>
+    </div>
+  </div>
+  <p class="hint" id="hint"><span id="hintKeys"></span> · <kbd>Espaço</kbd> pedal · <kbd>Esc</kbd> parar</p>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+/* Base reset */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px}
+[hidden]{display:none!important}
+/* Layout: one-screen instrument — control bar, a one-line letter sheet, then a single canvas: falling notes above a real 61-key piano mapped to the PC keyboard. Single committed look: piano felt + ivory + brass. */
+:root{
+  --felt:#2a0d14; --felt-2:#3b1520; --felt-3:#52202d;
+  --ivory:#f4ead5; --ivory-dim:#c9b9a0;
+  --brass:#e0b04a; --rose:#ea8f86; --sky:#9cc3e0;
+  --display:"Bricolage Grotesque", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--felt);color:var(--ivory);font-family:var(--display);overflow:hidden;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#kbIn{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0;background:transparent;color:transparent;caret-color:transparent}
+.app{height:var(--app-h,100%);display:flex;flex-direction:column;gap:8px;max-width:1180px;margin:0 auto;padding-block:10px;box-sizing:border-box}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{margin:0;font-weight:800;font-size:1.35rem;letter-spacing:-.02em}
+h1 span{color:var(--brass)}
+#hud{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.82rem;color:var(--ivory-dim);text-align:right;min-width:0}
+#hud b{color:var(--ivory)}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg{display:flex;background:var(--felt-2);border:1px solid var(--felt-3);border-radius:10px;padding:2px;flex:1 1 300px}
+.seg button{flex:1;font:600 .85rem var(--display);color:var(--ivory-dim);background:none;border:0;border-radius:8px;padding:7px 4px;cursor:pointer;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ivory);color:var(--felt)}
+select,.btn,.file{font:600 .85rem var(--display);color:var(--ivory);background:var(--felt-2);border:1px solid var(--felt-3);border-radius:10px;padding:7px 10px;min-height:36px;box-sizing:border-box}
+select{flex:1 1 170px;min-width:0}
+#speedSel,#layoutSel,#handSel,#styleSel{flex:0 1 auto}
+.btn{cursor:pointer}
+.btn.primary{background:var(--brass);color:var(--felt);border-color:var(--brass)}
+.btn.rec{background:var(--rose);color:var(--felt);border-color:var(--rose)}
+.btn[aria-pressed="true"]{background:var(--sky);color:var(--felt);border-color:var(--sky)}
+.btn.icon{width:36px;padding:0}
+.file{cursor:pointer;display:inline-flex;align-items:center}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.sheet{font-family:var(--mono);font-size:.95rem;white-space:nowrap;overflow:hidden;background:var(--felt-2);border:1px solid var(--felt-3);border-radius:10px;padding:7px 10px;color:var(--ivory-dim);min-height:1.4em}
+.sheet .past{opacity:.35}
+.sheet .now{color:var(--felt);background:var(--brass);border-radius:5px;padding:0 4px}
+.sheet .g{margin-right:.7em}
+.stage{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;background:var(--felt-2);border:1px solid var(--felt-3)}
+canvas{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;background:rgba(42,13,20,.86)}
+.overlay h2{margin:0;font-size:1.5rem;font-weight:800;text-wrap:balance}
+.overlay p{margin:0;color:var(--ivory-dim);max-width:40ch;line-height:1.45}
+.overlay textarea{width:min(560px,100%);height:120px;font:500 .85rem var(--mono);background:var(--felt);color:var(--ivory);border:1px solid var(--felt-3);border-radius:8px;padding:8px;box-sizing:border-box}
+.stats{display:grid;grid-template-columns:repeat(2,auto);gap:4px 18px;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:left}
+.stats span:nth-child(odd){color:var(--ivory-dim)}
+.hint{font-size:.75rem;color:var(--ivory-dim);margin:0;text-align:center}
+.hint kbd{font-family:var(--mono);background:var(--felt-2);border:1px solid var(--felt-3);border-radius:4px;padding:0 4px}
+.bar{display:flex;gap:6px;align-items:center}
+.settings{display:flex;flex-direction:column;gap:6px}
+.kb-lbl{margin-left:6px}
+#setBtn{display:none}
+@media (max-width:700px),(pointer:coarse){
+  .app{gap:6px;padding-block:6px}
+  h1{font-size:1rem}
+  .hint{display:none}
+  #setBtn{display:inline-block}
+  .settings{display:none}
+  body.show-settings .settings{display:flex}
+  .kb-lbl{display:none}
+  #kbBtn{width:40px;padding:0}
+  .sheet{padding:4px 8px;font-size:.85rem}
+  select,.btn,.file{min-height:34px;padding-block:5px}
+}
+body.kb-open h1,body.kb-open .settings,body.kb-open .hint,body.kb-open #setBtn{display:none!important}
+body.kb-open .brand{justify-content:flex-end}
