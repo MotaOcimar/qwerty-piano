@@ -20,7 +20,7 @@ python3 -m http.server
 
 1. Push the project to a GitHub repository.
 2. Go to **Settings → Pages** and pick the `main` branch and the `/ (root)` folder.
-3. After a few minutes the game is live at `https://YOUR-USER.github.io/qwerty-piano/`.
+3. After a few minutes the game is live at `https://motaocimar.github.io/qwerty-piano/`.
 
 ## Modes
 
