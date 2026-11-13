@@ -2,7 +2,9 @@
 /* ================= Key maps (matched by physical key position, KeyboardEvent.code, so ABNT2 and US both work) =================
    Contínuo  : Z row = Dó4 and runs on through , . ; /   (blacks S D G H J · L Ç)
                Q row = Dó5 and runs on through I O P ´ [  (blacks 2 3 5 6 7 · 9 0 =)   range Dó4–Sol6
-   Heartopia : , . ; O P ´ [ = Dó3 · Z..M = Dó4 · Q..U = Dó5 · I = Dó6                range Dó3–Dó6 */
+   Heartopia : , . ; O P ´ [ = Dó3 · Z..M = Dó4 · Q..U = Dó5 · I = Dó6                range Dó3–Dó6
+   Piano     : A S D F G H J K L Ç ~ ] = Dó4 to Sol5, blacks on the Q row sitting between
+               the whites like a real piano (W E · T Y U · O P · [)                    range Dó4–Sol5 */
 const STEPS=[0,2,4,5,7,9,11];
 const SOLFA=['Dó','Dó♯','Ré','Ré♯','Mi','Fá','Fá♯','Sol','Sol♯','Lá','Lá♯','Si'];
 const STYLES={
@@ -14,11 +16,14 @@ const STYLES={
     ['Comma','KeyL','Period','Semicolon','Slash','KeyO','Digit0','KeyP','Minus','BracketLeft','Equal','BracketRight'],
     ['KeyZ','KeyS','KeyX','KeyD','KeyC','KeyV','KeyG','KeyB','KeyH','KeyN','KeyJ','KeyM'],
     ['KeyQ','Digit2','KeyW','Digit3','KeyE','KeyR','Digit5','KeyT','Digit6','KeyY','Digit7','KeyU','KeyI']],
-    starts:[48,60,72]}
+    starts:[48,60,72]},
+  home:{lo:60,hi:79,rows:[
+    ['KeyA','KeyW','KeyS','KeyE','KeyD','KeyF','KeyT','KeyG','KeyY','KeyH','KeyU','KeyJ','KeyK','KeyO','KeyL','KeyP','Semicolon','Quote','BracketRight','Backslash']],
+    starts:[60]}
 };
 const LAYOUT_LABELS={
-  abnt2:{Comma:',',Period:'.',Slash:';',IntlRo:'/',Semicolon:'Ç',BracketLeft:'´',BracketRight:'[',Minus:'-',Equal:'='},
-  us:{Comma:',',Period:'.',Slash:'/',IntlRo:'\\',Semicolon:';',BracketLeft:'[',BracketRight:']',Minus:'-',Equal:'='}
+  abnt2:{Comma:',',Period:'.',Slash:';',IntlRo:'/',Semicolon:'Ç',BracketLeft:'´',BracketRight:'[',Minus:'-',Equal:'=',Quote:'~',Backslash:']'},
+  us:{Comma:',',Period:'.',Slash:'/',IntlRo:'\\',Semicolon:';',BracketLeft:'[',BracketRight:']',Minus:'-',Equal:'=',Quote:"'",Backslash:'\\'}
 };
 const labelFor=code=>LAYOUT_LABELS[layout][code]||(code.startsWith('Key')?code.slice(3):code.startsWith('Digit')?code.slice(5):code);
 let LO,HI,NW,style='cont',layout='abnt2';
@@ -311,7 +316,7 @@ function loop(t){
 function renderSheet(){
   const el=$('sheet');
   if(!run){
-    if(mode==='free'){el.textContent=rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.');return}
+    if(mode==='free'){el.textContent=rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':style==='home'?'Toque livre: A até ] são as teclas brancas. Sustenidos na fileira Q, entre as brancas, como num piano.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.');return}
     const s=song();el.textContent=s?sheetText(notesOf(s)):'';return;
   }
   const idx=mode==='listen'?run.groups.findIndex(g=>g.t>run.time-.01):run.groups.findIndex(g=>g.notes.some(n=>!n.judged));
@@ -500,7 +505,7 @@ $('handSel').value=melodyOnly?'mel':'full';
 $('handSel').addEventListener('change',e=>{melodyOnly=e.target.value==='mel';try{localStorage.setItem('pc-hands',e.target.value)}catch(_){}stopRun(false);fitView();renderSheet();draw()});
 function applyLayout(l){setLayout(l);buildChars();$('layoutSel').value=l;try{localStorage.setItem('pc-layout',l)}catch(e){}renderSheet();draw()}
 $('layoutSel').addEventListener('change',e=>applyLayout(e.target.value));
-function updateHint(){$('hintKeys').innerHTML=style==='cont'?'<kbd>Z</kbd>…<kbd>;</kbd> de Dó4 a Mi5 · <kbd>Q</kbd>…<kbd>[</kbd> de Dó5 a Sol6':'<kbd>,</kbd> <kbd>.</kbd> <kbd>;</kbd> <kbd>O</kbd> <kbd>P</kbd> grave · <kbd>Z</kbd>…<kbd>M</kbd> médio · <kbd>Q</kbd>…<kbd>U</kbd> agudo'}
+function updateHint(){$('hintKeys').innerHTML=style==='cont'?'<kbd>Z</kbd>…<kbd>;</kbd> de Dó4 a Mi5 · <kbd>Q</kbd>…<kbd>[</kbd> de Dó5 a Sol6':style==='home'?'<kbd>A</kbd>…<kbd>]</kbd> de Dó4 a Sol5 · sustenidos em <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd> <kbd>[</kbd>':'<kbd>,</kbd> <kbd>.</kbd> <kbd>;</kbd> <kbd>O</kbd> <kbd>P</kbd> grave · <kbd>Z</kbd>…<kbd>M</kbd> médio · <kbd>Q</kbd>…<kbd>U</kbd> agudo'}
 function applyStyle(st){
   [...held.keys()].forEach(release);stopRun(false);
   style=st;buildKeys();buildChars();refitSongs();$('styleSel').value=st;

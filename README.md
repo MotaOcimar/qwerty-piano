@@ -50,6 +50,15 @@ Keys are read by **physical position** (`KeyboardEvent.code`), so ABNT2 (Brazili
 | Middle (C4) | `Z X C V B N M` | `S D G H J` |
 | Low (C3) | `, . ; O P ´ [` | `L Ç 0 - =` |
 
+### Piano (ASDF)
+
+The home row is the white keys and the row above holds the sharps, sitting between the whites like on a real piano (the "musical typing" layout used by DAWs).
+
+| Row | Keys | Notes |
+|---|---|---|
+| A (whites) | `A S D F G H J K L Ç ~ ]` | C4 to G5 |
+| Q (sharps) | `W E` · `T Y U` · `O P` · `[` | C#4 D#4 · F#4 G#4 A#4 · C#5 D#5 · F#5 |
+
 **Space** holds the sustain pedal and **Esc** stops the song.
 
 On phones, the ⌨ button opens the native keyboard, and the on-screen piano supports multi-touch.
