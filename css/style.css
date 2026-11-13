@@ -38,10 +38,12 @@ select{flex:1 1 170px;min-width:0}
 .file{cursor:pointer;display:inline-flex;align-items:center}
 .file input{position:absolute;opacity:0;width:1px;height:1px}
 :focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-.sheet{font-family:var(--mono);font-size:.95rem;white-space:nowrap;overflow:hidden;background:var(--felt-2);border:1px solid var(--felt-3);border-radius:10px;padding:7px 10px;color:var(--ivory-dim);min-height:1.4em}
+.sheet{position:relative;font-family:var(--mono);font-size:.95rem;line-height:1.7;height:calc(var(--lines,1)*1.7em + 14px);overflow:hidden;background:var(--felt-2);border:1px solid var(--felt-3);border-radius:10px;padding:7px 10px;color:var(--ivory-dim)}
+.sheet-in{transition:transform .45s ease-out}
 .sheet .past{opacity:.35}
-.sheet .now{color:var(--felt);background:var(--brass);border-radius:5px;padding:0 4px}
-.sheet .g{margin-right:.7em}
+.sheet .now{color:var(--felt);background:var(--brass);border-radius:5px;box-shadow:0 0 0 3px var(--brass)}
+.sheet .g{display:inline-block;margin-right:.45em;transition:opacity .2s}
+.sheet .sep{opacity:.4;margin-right:.45em}
 .stage{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;background:var(--felt-2);border:1px solid var(--felt-3)}
 canvas{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;background:rgba(42,13,20,.86)}
@@ -65,7 +67,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;user-select:none;-
   body.show-settings .settings{display:flex}
   .kb-lbl{display:none}
   #kbBtn{width:40px;padding:0}
-  .sheet{padding:4px 8px;font-size:.85rem}
+  .sheet{padding:4px 8px;font-size:.85rem;height:calc(var(--lines,1)*1.7em + 8px)}
   select,.btn,.file{min-height:34px;padding-block:5px}
 }
 body.kb-open h1,body.kb-open .settings,body.kb-open .hint,body.kb-open #setBtn{display:none!important}

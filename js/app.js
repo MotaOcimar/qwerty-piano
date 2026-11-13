@@ -320,15 +320,28 @@ function loop(t){
 function renderSheet(){
   const el=$('sheet');
   if(!run){
-    if(mode==='free'){el.textContent=rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':style==='home'?'Toque livre: A até ] são as teclas brancas. Sustenidos na fileira Q, entre as brancas, como num piano. Z e X mudam a oitava.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.');return}
-    const s=song();el.textContent=s?sheetText(notesOf(s)):'';return;
+    if(mode==='free'){sheetFill(escHTML(rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':style==='home'?'Toque livre: A até ] são as teclas brancas. Sustenidos na fileira Q, entre as brancas, como num piano. Z e X mudam a oitava.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.')));return}
+    const s=song();sheetFill(s?sheetHTML(groupsOf(notesOf(s))):'');return;
   }
+  // Teleprompter: the whole song is laid out once as wrapped text and only the highlight moves. The box shows
+  // two lines; while the highlight walks along the lower one, the text glides up so that by the end of it that
+  // line has taken the top spot and the next one shows up below.
+  if(!run.sheetEls){sheetFill(sheetHTML(run.groups));run.sheetEls=[...el.querySelectorAll('.g')];run.sheetLines=null}
   const idx=mode==='listen'?run.groups.findIndex(g=>g.t>run.time-.01):run.groups.findIndex(g=>g.notes.some(n=>!n.judged));
   const i=idx<0?run.groups.length:idx;
   if(i===run.sheetIdx)return;run.sheetIdx=i;
-  const from=Math.max(0,i-2);
-  el.innerHTML=run.groups.slice(from,i+24).map((g,k)=>`<span class="g ${from+k<i?'past':from+k===i?'now':''}">${g.text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</span>`).join('');
+  run.sheetEls.forEach((g,k)=>{g.className='g'+(k<i?' past':k===i?' now':'')});
+  if(!run.sheetLines){const L=[];run.sheetEls.forEach((g,k)=>{const t=g.offsetTop,l=L[L.length-1];if(l&&Math.abs(l.top-t)<4)l.n++;else L.push({top:t,first:k,n:1})});run.sheetLines=L}
+  const L=run.sheetLines;let li=L.length-1;while(li>0&&L[li].first>i)li--;
+  let y=0;if(li>0){const l=L[li],f=Math.min(1,(i-l.first)/l.n);y=L[li-1].top-L[0].top+f*(l.top-L[li-1].top)}
+  el.firstChild.style.transform=`translateY(${-y}px)`;
 }
+const escHTML=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function sheetFill(html){$('sheet').innerHTML=`<div class="sheet-in">${html}</div>`;fitSheet()}
+// One line when everything fits, two otherwise
+function fitSheet(){const el=$('sheet'),inn=el.firstChild;if(!inn)return;el.style.setProperty('--lines',inn.scrollHeight>parseFloat(getComputedStyle(inn).lineHeight)*1.5?2:1)}
+new ResizeObserver(()=>{fitSheet();if(run&&run.sheetEls){run.sheetLines=null;run.sheetIdx=-1;renderSheet()}}).observe($('sheet'));
+function sheetHTML(g){return g.map((x,i)=>(i&&x.t-g[i-1].t>.9?'<span class="sep">|</span> ':'')+`<span class="g">${escHTML(x.text)}</span>`).join(' ')}
 function updateHud(){
   const h=$('hud');
   if(mode==='free'){h.innerHTML=rec?'<b>● Gravando</b>':'Piano livre';return}
