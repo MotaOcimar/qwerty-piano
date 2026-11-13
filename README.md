@@ -59,6 +59,8 @@ The home row is the white keys and the row above holds the sharps, sitting betwe
 | A (whites) | `A S D F G H J K L Ç ~ ]` | C4 to G5 |
 | Q (sharps) | `W E` · `T Y U` · `O P` · `[` | C#4 D#4 · F#4 G#4 A#4 · C#5 D#5 · F#5 |
 
+`Z` and `X` transpose the sound one octave down or up (up to ±2). Each key still counts as the same note, so in Learn and Challenge you can play a song an octave higher or lower and still hit every note. The **Oitava** button shows the current shift; click it to reset.
+
 **Space** holds the sustain pedal and **Esc** stops the song.
 
 On phones, the ⌨ button opens the native keyboard, and the on-screen piano supports multi-touch.

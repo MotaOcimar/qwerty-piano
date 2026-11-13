@@ -4,7 +4,8 @@
                Q row = Dó5 and runs on through I O P ´ [  (blacks 2 3 5 6 7 · 9 0 =)   range Dó4–Sol6
    Heartopia : , . ; O P ´ [ = Dó3 · Z..M = Dó4 · Q..U = Dó5 · I = Dó6                range Dó3–Dó6
    Piano     : A S D F G H J K L Ç ~ ] = Dó4 to Sol5, blacks on the Q row sitting between
-               the whites like a real piano (W E · T Y U · O P · [)                    range Dó4–Sol5 */
+               the whites like a real piano (W E · T Y U · O P · [)                    range Dó4–Sol5
+               Z / X transpose the sound one octave down / up; songs are still judged by key */
 const STEPS=[0,2,4,5,7,9,11];
 const SOLFA=['Dó','Dó♯','Ré','Ré♯','Mi','Fá','Fá♯','Sol','Sol♯','Lá','Lá♯','Si'];
 const STYLES={
@@ -19,14 +20,14 @@ const STYLES={
     starts:[48,60,72]},
   home:{lo:60,hi:79,rows:[
     ['KeyA','KeyW','KeyS','KeyE','KeyD','KeyF','KeyT','KeyG','KeyY','KeyH','KeyU','KeyJ','KeyK','KeyO','KeyL','KeyP','Semicolon','Quote','BracketRight','Backslash']],
-    starts:[60]}
+    starts:[60],oct:['KeyZ','KeyX']}
 };
 const LAYOUT_LABELS={
   abnt2:{Comma:',',Period:'.',Slash:';',IntlRo:'/',Semicolon:'Ç',BracketLeft:'´',BracketRight:'[',Minus:'-',Equal:'=',Quote:'~',Backslash:']'},
   us:{Comma:',',Period:'.',Slash:'/',IntlRo:'\\',Semicolon:';',BracketLeft:'[',BracketRight:']',Minus:'-',Equal:'=',Quote:"'",Backslash:'\\'}
 };
 const labelFor=code=>LAYOUT_LABELS[layout][code]||(code.startsWith('Key')?code.slice(3):code.startsWith('Digit')?code.slice(5):code);
-let LO,HI,NW,style='cont',layout='abnt2';
+let LO,HI,NW,style='cont',layout='abnt2',octave=0;
 const KEYS={},CODE2MIDI={};
 const WI2MIDI=i=>LO+12*Math.floor(i/7)+STEPS[i%7];
 function buildKeys(){
@@ -133,7 +134,8 @@ function audio(){
   return ac;
 }
 const voices=[];
-function noteOn(midi,vel=.8){
+function noteOn(key,vel=.8){
+  const midi=key+12*octave;
   audio();const t=ac.currentTime,f=440*Math.pow(2,(midi-69)/12);
   const lp=ac.createBiquadFilter(),env=ac.createGain(),rel=ac.createGain(),mix=ac.createGain();
   lp.type='lowpass';lp.frequency.setValueAtTime(Math.min(15000,f*(6+vel*10)),t);lp.frequency.setTargetAtTime(Math.max(f*1.6,300),t+.02,.35);
@@ -147,7 +149,7 @@ function noteOn(midi,vel=.8){
   nz.buffer=noiseBuf;bp.type='bandpass';bp.frequency.value=Math.min(8000,f*4);bp.Q.value=1.2;ng.gain.value=.07*vel;
   nz.connect(bp).connect(ng).connect(rel);nz.start(t);
   const end=t+decay*2.4;o1.start(t);o2.start(t);o1.stop(end);o2.stop(end);
-  const v={midi,rel,o:[o1,o2],done:false};voices.push(v);
+  const v={midi:key,rel,o:[o1,o2],done:false};voices.push(v);
   o1.onended=()=>{const i=voices.indexOf(v);if(i>=0)voices.splice(i,1)};
   if(voices.length>44)noteOff(voices.find(x=>!x.done),.04);
   return v;
@@ -171,11 +173,13 @@ function release(src){
   if(pedalOn())sustained.add(h.v);else noteOff(h.v);
   if(rec)recOff(src);
 }
+function shiftOctave(d){octave=Math.max(-2,Math.min(2,octave+d));updateOctave()}
+function updateOctave(){const b=$('octBtn');b.hidden=!STYLES[style].oct;b.textContent='Oitava '+(octave>0?'+':'')+octave;b.setAttribute('aria-pressed',String(octave!==0))}
 function updatePedal(){$('pedalBtn').setAttribute('aria-pressed',String(pedalOn()));if(!pedalOn()){sustained.forEach(v=>noteOff(v));sustained.clear()}}
 
 /* ================= Recording ================= */
 let rec=null;
-function recOn(src,midi){if(!rec.start)rec.start=performance.now();const n={t:(performance.now()-rec.start)/1000,midi,dur:.25};rec.notes.push(n);rec.open.set(src,n)}
+function recOn(src,midi){if(!rec.start)rec.start=performance.now();const n={t:(performance.now()-rec.start)/1000,midi:midi+12*octave,dur:.25};rec.notes.push(n);rec.open.set(src,n)}
 function recOff(src){const n=rec.open.get(src);if(n){n.dur=Math.max(.08,(performance.now()-rec.start)/1000-n.t);rec.open.delete(src)}}
 
 /* ================= State / helpers ================= */
@@ -316,7 +320,7 @@ function loop(t){
 function renderSheet(){
   const el=$('sheet');
   if(!run){
-    if(mode==='free'){el.textContent=rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':style==='home'?'Toque livre: A até ] são as teclas brancas. Sustenidos na fileira Q, entre as brancas, como num piano.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.');return}
+    if(mode==='free'){el.textContent=rec?`Gravando… ${rec.notes.length} notas`:(style==='cont'?'Toque livre: Z até ; e Q até [ seguem a escala sem pular. Sustenidos na fileira logo acima.':style==='home'?'Toque livre: A até ] são as teclas brancas. Sustenidos na fileira Q, entre as brancas, como num piano. Z e X mudam a oitava.':'Toque livre: linha de baixo = graves, Z a M = médio, Q a U = agudos. Sustenidos na linha de cima de cada uma.');return}
     const s=song();el.textContent=s?sheetText(notesOf(s)):'';return;
   }
   const idx=mode==='listen'?run.groups.findIndex(g=>g.t>run.time-.01):run.groups.findIndex(g=>g.notes.some(n=>!n.judged));
@@ -413,6 +417,8 @@ addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
   if(e.code==='Space'){e.preventDefault();if(!e.repeat){spaceDown=true;updatePedal()}return}
   if(e.code==='Escape'){if(run)stopRun(false);$('overlay').hidden=true;return}
+  const oi=(STYLES[style].oct||[]).indexOf(e.code);
+  if(oi>=0){e.preventDefault();if(!e.repeat)shiftOctave(oi?1:-1);return}
   const m=CODE2MIDI[e.code];if(m===undefined)return;
   e.preventDefault();if(e.repeat)return;
   press('k:'+e.code,m);redrawSoon();
@@ -429,6 +435,8 @@ function buildChars(){for(const k in CHAR2MIDI)delete CHAR2MIDI[k];for(const[cod
 buildChars();
 let softSeq=0;
 function playChar(ch){
+  const oi=(STYLES[style].oct||[]).map(labelFor).map(c=>c.toLowerCase()).indexOf(ch.toLowerCase());
+  if(oi>=0){shiftOctave(oi?1:-1);return}
   const m=CHAR2MIDI[ch.toLowerCase()];
   if(m===undefined)return;
   audio();const src='s:'+(softSeq++);press(src,m);redrawSoon();
@@ -505,14 +513,16 @@ $('handSel').value=melodyOnly?'mel':'full';
 $('handSel').addEventListener('change',e=>{melodyOnly=e.target.value==='mel';try{localStorage.setItem('pc-hands',e.target.value)}catch(_){}stopRun(false);fitView();renderSheet();draw()});
 function applyLayout(l){setLayout(l);buildChars();$('layoutSel').value=l;try{localStorage.setItem('pc-layout',l)}catch(e){}renderSheet();draw()}
 $('layoutSel').addEventListener('change',e=>applyLayout(e.target.value));
-function updateHint(){$('hintKeys').innerHTML=style==='cont'?'<kbd>Z</kbd>…<kbd>;</kbd> de Dó4 a Mi5 · <kbd>Q</kbd>…<kbd>[</kbd> de Dó5 a Sol6':style==='home'?'<kbd>A</kbd>…<kbd>]</kbd> de Dó4 a Sol5 · sustenidos em <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd> <kbd>[</kbd>':'<kbd>,</kbd> <kbd>.</kbd> <kbd>;</kbd> <kbd>O</kbd> <kbd>P</kbd> grave · <kbd>Z</kbd>…<kbd>M</kbd> médio · <kbd>Q</kbd>…<kbd>U</kbd> agudo'}
+function updateHint(){$('hintKeys').innerHTML=style==='cont'?'<kbd>Z</kbd>…<kbd>;</kbd> de Dó4 a Mi5 · <kbd>Q</kbd>…<kbd>[</kbd> de Dó5 a Sol6':style==='home'?'<kbd>A</kbd>…<kbd>]</kbd> de Dó4 a Sol5 · sustenidos em <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd> <kbd>[</kbd> · <kbd>Z</kbd> <kbd>X</kbd> oitava':'<kbd>,</kbd> <kbd>.</kbd> <kbd>;</kbd> <kbd>O</kbd> <kbd>P</kbd> grave · <kbd>Z</kbd>…<kbd>M</kbd> médio · <kbd>Q</kbd>…<kbd>U</kbd> agudo'}
 function applyStyle(st){
   [...held.keys()].forEach(release);stopRun(false);
   style=st;buildKeys();buildChars();refitSongs();$('styleSel').value=st;
+  if(!STYLES[st].oct)octave=0;updateOctave();
   try{localStorage.setItem('pc-style',st)}catch(e){}
   manualPan=false;fitView();renderSheet();updateHint();draw();
 }
-$('styleSel').value=style;updateHint();
+$('styleSel').value=style;updateHint();updateOctave();
+$('octBtn').addEventListener('click',()=>{octave=0;updateOctave()});
 $('styleSel').addEventListener('change',e=>applyStyle(e.target.value));
 try{const l=localStorage.getItem('pc-layout');if(l)applyLayout(l)}catch(e){}
 try{navigator.keyboard&&navigator.keyboard.getLayoutMap().then(map=>{const c=map.get('Semicolon');if(c==='ç')applyLayout('abnt2');else if(c===';')applyLayout('us')}).catch(()=>{})}catch(e){}
